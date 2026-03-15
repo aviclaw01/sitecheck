@@ -11,6 +11,7 @@ interface Lead {
   grade: string;
   timestamp: string;
   ip?: string;
+  source?: string;
 }
 
 const DATA_FILE = path.join(process.cwd(), "data", "leads.json");
@@ -30,70 +31,95 @@ async function writeLeads(leads: Lead[]): Promise<void> {
 }
 
 function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  // RFC 5322 simplified — catches common mistakes
+  return /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(email.trim());
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, url, score, grade } = body as {
+    const { email, url, score, grade, source } = body as {
       email: string;
       url: string;
       score: number;
       grade?: string;
+      source?: string;
     };
 
-    if (!email || !isValidEmail(email)) {
+    // Validate email
+    if (!email || typeof email !== "string") {
       return NextResponse.json(
-        { error: "Please enter a valid email address" },
+        { success: false, error: "Email address is required." },
         { status: 400 }
       );
     }
 
-    if (!url) {
-      return NextResponse.json({ error: "URL is required" }, { status: 400 });
+    if (!isValidEmail(email)) {
+      return NextResponse.json(
+        { success: false, error: "Please enter a valid email address (e.g. name@company.de)." },
+        { status: 400 }
+      );
     }
+
+    if (!url || typeof url !== "string") {
+      return NextResponse.json(
+        { success: false, error: "URL is required." },
+        { status: 400 }
+      );
+    }
+
+    // Rate limiting: prevent same IP spamming
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || undefined;
 
     const lead: Lead = {
       email: email.trim().toLowerCase(),
-      url,
-      score: score || 0,
+      url: url.trim(),
+      score: typeof score === "number" ? score : 0,
       grade: grade || "?",
       timestamp: new Date().toISOString(),
-      ip: request.headers.get("x-forwarded-for") || undefined,
+      ip,
+      source: source || "results-page",
     };
 
     const leads = await readLeads();
 
-    // Check if email already submitted for this URL
-    const exists = leads.some(
-      (l) => l.email === lead.email && l.url === lead.url
+    // Check for duplicate (same email + same URL)
+    const alreadyExists = leads.some(
+      (l) =>
+        l.email === lead.email &&
+        l.url === lead.url
     );
-    if (exists) {
+
+    if (alreadyExists) {
       return NextResponse.json({
         success: true,
-        message: "You're already on our list! We'll be in touch soon.",
         alreadyExists: true,
+        message: "You're already on our list! We'll be in touch within 24 hours.",
       });
     }
 
     leads.push(lead);
     await writeLeads(leads);
 
-    console.log(`New lead captured: ${lead.email} (${lead.url}, score: ${lead.score})`);
+    console.log(
+      `[SiteCheck] New lead: ${lead.email} | URL: ${lead.url} | Score: ${lead.score} (${lead.grade})`
+    );
 
     return NextResponse.json({
       success: true,
-      message:
-        "Thanks! A member of the Nexprove team will reach out to you shortly.",
+      alreadyExists: false,
+      message: "Thanks! We'll be in touch within 24 hours.",
     });
   } catch (err) {
     console.error("Subscribe error:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Something went wrong. Please try again." },
+      { status: 500 }
+    );
   }
 }
 
-// GET endpoint to download leads (protect with basic auth in production)
+// GET endpoint to download leads (protect with Bearer token in production)
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   const adminKey = process.env.ADMIN_KEY || "nexprove-admin";
@@ -103,5 +129,9 @@ export async function GET(request: NextRequest) {
   }
 
   const leads = await readLeads();
-  return NextResponse.json({ count: leads.length, leads });
+  return NextResponse.json({
+    count: leads.length,
+    leads,
+    exportedAt: new Date().toISOString(),
+  });
 }

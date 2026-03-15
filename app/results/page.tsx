@@ -13,6 +13,27 @@ interface AuditScore {
   recommendations: string[];
 }
 
+interface CompetitorBenchmark {
+  averageScore: number;
+  yourRank: string;
+  message: string;
+}
+
+interface TechnicalDetails {
+  https: boolean;
+  hasFavicon: boolean;
+  hasOgImage: boolean;
+  hasTwitterCard: boolean;
+  hasRobotsTxt: boolean;
+  hasSitemap: boolean;
+  hasAnalytics: boolean;
+  hasWhatsApp: boolean;
+  hasGoogleMaps: boolean;
+  hasPhone: boolean;
+  hasAddress: boolean;
+  hasStructuredData: boolean;
+}
+
 interface AuditResult {
   url: string;
   timestamp: string;
@@ -22,6 +43,10 @@ interface AuditResult {
   overallGrade: string;
   scores: AuditScore[];
   summary: string;
+  quickWins?: string[];
+  missingElements?: string[];
+  competitorBenchmark?: CompetitorBenchmark;
+  technicalDetails?: TechnicalDetails;
 }
 
 const gradeColors: Record<string, string> = {
@@ -52,13 +77,7 @@ const statusBarColors: Record<string, string> = {
   poor: "bg-gradient-to-r from-red-600 to-red-400",
 };
 
-function GradeRing({
-  score,
-  grade,
-}: {
-  score: number;
-  grade: string;
-}) {
+function GradeRing({ score, grade }: { score: number; grade: string }) {
   const radius = 52;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
@@ -87,11 +106,7 @@ function GradeRing({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span
-          className={`text-5xl font-bold ${gradeColors[grade]}`}
-        >
-          {grade}
-        </span>
+        <span className={`text-5xl font-bold ${gradeColors[grade]}`}>{grade}</span>
         <span className="text-slate-400 text-sm">{score}/100</span>
       </div>
     </div>
@@ -122,6 +137,53 @@ function ScoreBar({
   );
 }
 
+function TechBadge({ ok, label }: { ok: boolean; label: string }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${
+        ok
+          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+          : "bg-red-500/10 text-red-400 border border-red-500/20"
+      }`}
+    >
+      {ok ? "✓" : "✗"} {label}
+    </span>
+  );
+}
+
+function EmailSuccessState({ lang }: { lang: "en" | "de" }) {
+  return (
+    <div className="glass rounded-xl border border-teal-500/30 p-6 text-center">
+      <div className="w-12 h-12 rounded-full bg-teal-500/20 flex items-center justify-center mx-auto mb-4">
+        <span className="text-2xl">✅</span>
+      </div>
+      <h4 className="text-lg font-semibold text-teal-400 mb-2">
+        {lang === "de" ? "Wir melden uns innerhalb von 24 Stunden!" : "We'll be in touch within 24 hours!"}
+      </h4>
+      <p className="text-slate-400 text-sm mb-4">
+        {lang === "de"
+          ? "Unser Team bei Nexprove wird sich mit einem persönlichen Aktionsplan für Ihre Website melden."
+          : "Our team at Nexprove will reach out with a personalised action plan for your website."}
+      </p>
+      <div className="flex flex-col gap-2">
+        <a
+          href="https://www.nexprove.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block w-full py-2 rounded-xl bg-teal-500/20 text-teal-400 text-sm font-medium hover:bg-teal-500/30 transition-colors"
+        >
+          {lang === "de" ? "Nexprove besuchen →" : "Visit nexprove.com →"}
+        </a>
+        <p className="text-slate-600 text-xs">
+          {lang === "de"
+            ? "Kein Spam, versprochen. Nur ein kurzes Gespräch."
+            : "No spam, ever. Just a quick call."}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function ResultsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -134,6 +196,7 @@ function ResultsContent() {
   const [emailError, setEmailError] = useState("");
   const [expandedScore, setExpandedScore] = useState<string | null>(null);
   const [lang, setLang] = useState<"en" | "de">("en");
+  const [showAllMissing, setShowAllMissing] = useState(false);
 
   const urlParam = searchParams.get("url") || "";
   const dataParam = searchParams.get("data");
@@ -147,7 +210,6 @@ function ResultsContent() {
         setError("Could not parse audit results.");
       }
     } else if (urlParam) {
-      // Re-fetch if no data param
       fetch("/api/audit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -164,20 +226,32 @@ function ResultsContent() {
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setEmailError("");
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setEmailError("Please enter a valid email address.");
+
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setEmailError(lang === "de" ? "Bitte E-Mail eingeben." : "Please enter your email address.");
       return;
     }
+    if (!/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(trimmedEmail)) {
+      setEmailError(
+        lang === "de"
+          ? "Bitte gültige E-Mail-Adresse eingeben."
+          : "Please enter a valid email address."
+      );
+      return;
+    }
+
     setEmailLoading(true);
     try {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email,
+          email: trimmedEmail,
           url: data?.url || urlParam,
           score: data?.overallScore || 0,
           grade: data?.overallGrade || "?",
+          source: "results-page",
         }),
       });
       const result = await res.json();
@@ -200,37 +274,49 @@ function ResultsContent() {
       for: "for",
       overall: "Overall Score",
       categories: "Category Breakdown",
-      recommendations: "Top Recommendations",
-      cta: "Get a Free Consultation",
+      quickWins: "⚡ Quick Wins",
+      quickWinsDesc: "These fixes take less than a day and have the highest impact:",
+      missingElements: "🔴 Missing Elements",
+      benchmark: "📊 Industry Benchmark",
+      techDetails: "🔬 Technical Scan",
+      cta: "Get Your Free Action Plan",
       ctaDesc:
-        "Let our team at Nexprove fix these issues for you. No obligation — just a quick call to discuss your website.",
+        "Our team at Nexprove will build you a personalised fix list and quote — no obligation.",
       ctaPlaceholder: "your@email.com",
-      ctaBtn: "Book Free Consultation",
-      ctaSent: "🎉 We'll be in touch soon!",
+      ctaBtn: "Send Me the Action Plan →",
+      ctaNote: "Free report · No credit card · We'll be in touch within 24 hours",
       footerText: "Report generated by SiteCheck",
       poweredBy: "Powered by Nexprove",
       langToggle: "DE",
       loadedIn: "Loaded in",
       notReachable: "Site not reachable",
+      showMore: "Show all missing elements",
+      showLess: "Show fewer",
     },
     de: {
       back: "← Andere Website analysieren",
       title: "Website-Audit-Bericht",
       for: "für",
       overall: "Gesamtpunktzahl",
-      categories: "Kategorien",
-      recommendations: "Empfehlungen",
-      cta: "Kostenlose Beratung buchen",
+      categories: "Kategorien-Übersicht",
+      quickWins: "⚡ Schnelle Gewinne",
+      quickWinsDesc: "Diese Korrekturen dauern weniger als einen Tag und haben den größten Effekt:",
+      missingElements: "🔴 Fehlende Elemente",
+      benchmark: "📊 Branchen-Benchmark",
+      techDetails: "🔬 Technischer Scan",
+      cta: "Kostenloser Aktionsplan",
       ctaDesc:
-        "Lassen Sie unser Team von Nexprove diese Probleme für Sie beheben. Unverbindlich — nur ein kurzes Gespräch über Ihre Website.",
+        "Unser Team bei Nexprove erstellt Ihnen eine persönliche Korrektliste und ein Angebot – unverbindlich.",
       ctaPlaceholder: "ihre@email.de",
-      ctaBtn: "Kostenlose Beratung",
-      ctaSent: "🎉 Wir melden uns bald bei Ihnen!",
+      ctaBtn: "Aktionsplan zusenden →",
+      ctaNote: "Kostenlos · Keine Kreditkarte · Rückmeldung innerhalb von 24 Stunden",
       footerText: "Bericht erstellt von SiteCheck",
       poweredBy: "Entwickelt von Nexprove",
       langToggle: "EN",
       loadedIn: "Geladen in",
       notReachable: "Website nicht erreichbar",
+      showMore: "Alle fehlenden Elemente anzeigen",
+      showLess: "Weniger anzeigen",
     },
   };
 
@@ -258,12 +344,15 @@ function ResultsContent() {
         <div className="text-center">
           <div className="w-12 h-12 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-slate-400">Analyzing your website...</p>
+          <p className="text-slate-600 text-sm mt-2">Checking 20+ signals — this takes ~15 seconds</p>
         </div>
       </div>
     );
   }
 
   const displayUrl = data.url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const missing = data.missingElements || [];
+  const shownMissing = showAllMissing ? missing : missing.slice(0, 6);
 
   return (
     <div className="min-h-screen bg-[#020817] text-slate-100 grid-pattern">
@@ -283,10 +372,7 @@ function ResultsContent() {
             >
               {t.langToggle}
             </button>
-            <Link
-              href="/"
-              className="flex items-center gap-2"
-            >
+            <Link href="/" className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-teal-500 flex items-center justify-center text-white font-bold text-xs">
                 SC
               </div>
@@ -300,59 +386,68 @@ function ResultsContent() {
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
         {/* Header */}
-        <div className="mb-10 animate-fade-in-up">
+        <div className="mb-8 animate-fade-in-up">
           <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
             <span>{t.title}</span>
             <span>·</span>
-            <span className="text-teal-400 truncate max-w-xs">{displayUrl}</span>
+            <a
+              href={data.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-teal-400 truncate max-w-xs hover:underline"
+            >
+              {displayUrl}
+            </a>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-100">
-            {t.title}{" "}
-            <span className="text-slate-500 font-normal text-lg">
-              {t.for}{" "}
-              <a
-                href={data.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-teal-400 hover:text-teal-300 hover:underline transition-colors"
-              >
-                {displayUrl}
-              </a>
-            </span>
-          </h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-slate-500 text-sm">
             {data.loadable
               ? `${t.loadedIn} ${(data.loadTimeMs / 1000).toFixed(1)}s · ${new Date(data.timestamp).toLocaleString()}`
               : `${t.notReachable} · ${new Date(data.timestamp).toLocaleString()}`}
           </p>
         </div>
 
-        {/* Overall Score */}
+        {/* Overall Score + Competitor Benchmark */}
         <div className="glass rounded-2xl border border-slate-800/50 p-6 sm:p-8 mb-6 animate-fade-in-up-delay-1">
           <div className="flex flex-col sm:flex-row items-center gap-8">
             <div className="shrink-0">
               <GradeRing score={data.overallScore} grade={data.overallGrade} />
             </div>
             <div className="flex-1 text-center sm:text-left">
-              <h2 className="text-xl font-bold text-slate-100 mb-2">
-                {t.overall}
-              </h2>
-              <p className="text-slate-300 leading-relaxed mb-4">
-                {data.summary}
-              </p>
+              <h2 className="text-xl font-bold text-slate-100 mb-2">{t.overall}</h2>
+              <p className="text-slate-300 leading-relaxed mb-4">{data.summary}</p>
+
+              {/* Competitor benchmark */}
+              {data.competitorBenchmark && (
+                <div className="inline-flex flex-col gap-1 px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-4">
+                  <p className="text-xs text-slate-500 uppercase tracking-wide font-medium">
+                    {t.benchmark}
+                  </p>
+                  <p className="text-sm text-slate-300">
+                    Industry avg:{" "}
+                    <span className="font-bold text-slate-100">
+                      {data.competitorBenchmark.averageScore}/100
+                    </span>{" "}
+                    · Your rank:{" "}
+                    <span
+                      className={`font-bold ${
+                        data.overallScore >= data.competitorBenchmark.averageScore
+                          ? "text-teal-400"
+                          : "text-orange-400"
+                      }`}
+                    >
+                      {data.competitorBenchmark.yourRank}
+                    </span>
+                  </p>
+                  <p className="text-xs text-slate-500">{data.competitorBenchmark.message}</p>
+                </div>
+              )}
+
               <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
                 {data.scores.map((s) => (
-                  <div
-                    key={s.category}
-                    className="flex items-center gap-1.5 text-sm"
-                  >
-                    <span
-                      className={`w-2 h-2 rounded-full ${statusColors[s.status]}`}
-                    />
+                  <div key={s.category} className="flex items-center gap-1.5 text-sm">
+                    <span className={`w-2 h-2 rounded-full ${statusColors[s.status]}`} />
                     <span className="text-slate-400 text-xs">{s.category}</span>
-                    <span
-                      className={`font-bold text-xs ${gradeColors[s.grade]}`}
-                    >
+                    <span className={`font-bold text-xs ${gradeColors[s.grade]}`}>
                       {s.grade}
                     </span>
                   </div>
@@ -362,11 +457,25 @@ function ResultsContent() {
           </div>
         </div>
 
+        {/* Quick Wins */}
+        {data.quickWins && data.quickWins.length > 0 && (
+          <div className="glass rounded-2xl border border-amber-500/20 bg-amber-950/10 p-5 mb-6 animate-fade-in-up-delay-1">
+            <h3 className="text-base font-bold text-amber-400 mb-1">{t.quickWins}</h3>
+            <p className="text-slate-500 text-xs mb-3">{t.quickWinsDesc}</p>
+            <ul className="space-y-2">
+              {data.quickWins.map((win, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
+                  <span className="text-amber-400 shrink-0 mt-0.5 font-bold">{i + 1}.</span>
+                  {win}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Category Scores */}
         <div className="mb-6 animate-fade-in-up-delay-2">
-          <h2 className="text-xl font-bold text-slate-100 mb-4">
-            {t.categories}
-          </h2>
+          <h2 className="text-xl font-bold text-slate-100 mb-4">{t.categories}</h2>
           <div className="space-y-3">
             {data.scores.map((score) => (
               <div
@@ -391,12 +500,8 @@ function ResultsContent() {
                       </span>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
-                      <span className="text-slate-400 text-sm">
-                        {score.score}/100
-                      </span>
-                      <span
-                        className={`text-xl font-bold ${gradeColors[score.grade]}`}
-                      >
+                      <span className="text-slate-400 text-sm">{score.score}/100</span>
+                      <span className={`text-xl font-bold ${gradeColors[score.grade]}`}>
                         {score.grade}
                       </span>
                       <span className="text-slate-600 text-xs">
@@ -423,9 +528,7 @@ function ResultsContent() {
                               key={i}
                               className="flex items-start gap-2 text-sm text-slate-300"
                             >
-                              <span className="text-teal-400 shrink-0 mt-0.5">
-                                →
-                              </span>
+                              <span className="text-teal-400 shrink-0 mt-0.5">→</span>
                               {rec}
                             </li>
                           ))}
@@ -439,6 +542,54 @@ function ResultsContent() {
           </div>
         </div>
 
+        {/* Technical Details */}
+        {data.technicalDetails && (
+          <div className="glass rounded-2xl border border-slate-800/50 p-5 mb-6 animate-fade-in-up-delay-2">
+            <h3 className="text-base font-bold text-slate-100 mb-3">{t.techDetails}</h3>
+            <div className="flex flex-wrap gap-2">
+              <TechBadge ok={data.technicalDetails.https} label="HTTPS" />
+              <TechBadge ok={data.technicalDetails.hasFavicon} label="Favicon" />
+              <TechBadge ok={data.technicalDetails.hasOgImage} label="og:image" />
+              <TechBadge ok={data.technicalDetails.hasTwitterCard} label="Twitter Card" />
+              <TechBadge ok={data.technicalDetails.hasRobotsTxt} label="robots.txt" />
+              <TechBadge ok={data.technicalDetails.hasSitemap} label="sitemap.xml" />
+              <TechBadge ok={data.technicalDetails.hasAnalytics} label="Analytics" />
+              <TechBadge ok={data.technicalDetails.hasPhone} label="Phone Number" />
+              <TechBadge ok={data.technicalDetails.hasAddress} label="Address" />
+              <TechBadge ok={data.technicalDetails.hasGoogleMaps} label="Google Maps" />
+              <TechBadge ok={data.technicalDetails.hasWhatsApp} label="WhatsApp" />
+              <TechBadge ok={data.technicalDetails.hasStructuredData} label="Schema.org" />
+            </div>
+          </div>
+        )}
+
+        {/* Missing Elements */}
+        {missing.length > 0 && (
+          <div className="glass rounded-2xl border border-red-500/20 bg-red-950/10 p-5 mb-6 animate-fade-in-up-delay-2">
+            <h3 className="text-base font-bold text-red-400 mb-3">
+              {t.missingElements} ({missing.length})
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {shownMissing.map((item, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs bg-red-500/10 text-red-400 border border-red-500/20"
+                >
+                  ✗ {item}
+                </span>
+              ))}
+            </div>
+            {missing.length > 6 && (
+              <button
+                onClick={() => setShowAllMissing(!showAllMissing)}
+                className="mt-3 text-xs text-slate-500 hover:text-teal-400 transition-colors"
+              >
+                {showAllMissing ? t.showLess : `${t.showMore} (${missing.length - 6} more)`}
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Email CTA */}
         <div className="animate-fade-in-up-delay-3">
           <div className="rounded-2xl border border-teal-500/30 bg-gradient-to-br from-teal-950/40 via-slate-900/60 to-slate-900/60 p-6 sm:p-8 glass">
@@ -447,37 +598,23 @@ function ResultsContent() {
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-400 text-xs font-medium mb-3">
                   🚀 Free Consultation
                 </div>
-                <h3 className="text-xl font-bold text-slate-100 mb-2">
-                  {t.cta}
-                </h3>
-                <p className="text-slate-400 text-sm leading-relaxed mb-1">
-                  {t.ctaDesc}
-                </p>
+                <h3 className="text-xl font-bold text-slate-100 mb-2">{t.cta}</h3>
+                <p className="text-slate-400 text-sm leading-relaxed mb-2">{t.ctaDesc}</p>
                 <p className="text-slate-500 text-xs">
                   Your website scored{" "}
                   <span className={`font-bold ${gradeColors[data.overallGrade]}`}>
                     {data.overallGrade} ({data.overallScore}/100)
                   </span>
-                  . Our team can help you improve it.
+                  {data.missingElements && data.missingElements.length > 0 && (
+                    <>
+                      {" "}· {data.missingElements.length} issues detected
+                    </>
+                  )}
                 </p>
               </div>
               <div className="w-full sm:w-80 shrink-0">
                 {emailSent ? (
-                  <div className="glass rounded-xl border border-teal-500/30 p-5 text-center">
-                    <div className="text-3xl mb-2">🎉</div>
-                    <p className="text-teal-400 font-medium">{t.ctaSent}</p>
-                    <p className="text-slate-500 text-xs mt-1">
-                      Check your inbox for a confirmation.
-                    </p>
-                    <a
-                      href="https://www.nexprove.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block mt-3 text-xs text-teal-400 hover:text-teal-300 transition-colors"
-                    >
-                      Visit nexprove.com →
-                    </a>
-                  </div>
+                  <EmailSuccessState lang={lang} />
                 ) : (
                   <form onSubmit={handleEmailSubmit} className="space-y-3">
                     <input
@@ -487,6 +624,7 @@ function ResultsContent() {
                       placeholder={t.ctaPlaceholder}
                       className="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700 text-slate-100 placeholder-slate-600 outline-none focus:border-teal-500/50 transition-colors text-sm"
                       disabled={emailLoading}
+                      autoComplete="email"
                     />
                     {emailError && (
                       <p className="text-red-400 text-xs">{emailError}</p>
@@ -498,9 +636,7 @@ function ResultsContent() {
                     >
                       {emailLoading ? "Sending..." : t.ctaBtn}
                     </button>
-                    <p className="text-slate-600 text-xs text-center">
-                      No spam, ever. Just one quick call.
-                    </p>
+                    <p className="text-slate-600 text-xs text-center">{t.ctaNote}</p>
                   </form>
                 )}
               </div>
@@ -510,7 +646,9 @@ function ResultsContent() {
 
         {/* Footer */}
         <div className="mt-10 pt-6 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-2 text-slate-600 text-xs">
-          <span>{t.footerText} · {new Date(data.timestamp).toLocaleDateString()}</span>
+          <span>
+            {t.footerText} · {new Date(data.timestamp).toLocaleDateString()}
+          </span>
           <a
             href="https://www.nexprove.com"
             target="_blank"

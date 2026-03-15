@@ -5,15 +5,15 @@ import { useRouter } from "next/navigation";
 
 const translations = {
   en: {
-    badge: "Free Website Audit",
-    headline: "Is your dealership website",
-    headlineAccent: "losing customers?",
-    headlineDE: "Verliert Ihre Händler-Website Kunden?",
+    badge: "Free Website Audit — No Credit Card Required",
+    headline: "Your dealership website is",
+    headlineAccent: "costing you sales.",
+    headlineDE: "Ihre Händler-Website kostet Sie Verkäufe.",
     subheadline:
-      "Your website is your digital showroom — and right now, it might be driving buyers straight to your competitors. Get a free 60-second audit and find out exactly where you're losing them.",
+      "83% of car buyers research online before visiting a dealership. If your website is slow, broken on mobile, or invisible in local search — they're going to your competitor. Find out in 60 seconds.",
     urlPlaceholder: "https://www.ihreautohändler.de",
-    analyzeBtn: "Analyze Website →",
-    analyzingBtn: "Analyzing...",
+    analyzeBtn: "Get My Free Report →",
+    analyzingBtn: "Scanning website...",
     urlError: "Please enter a valid website URL",
     stats: [
       { value: "67%", label: "of buyers abandon slow websites" },
@@ -97,15 +97,15 @@ const translations = {
     lang: "DE",
   },
   de: {
-    badge: "Kostenloser Website-Audit",
-    headline: "Verliert Ihre Website",
-    headlineAccent: "Kunden?",
-    headlineDE: "Is your website losing customers?",
+    badge: "Kostenloser Website-Audit — Keine Kreditkarte nötig",
+    headline: "Ihre Website kostet Sie",
+    headlineAccent: "Verkäufe.",
+    headlineDE: "Your website is costing you sales.",
     subheadline:
-      "Ihre Website ist Ihr digitaler Showroom — und im Moment treibt sie vielleicht Käufer direkt zu Ihren Mitbewerbern. Erhalten Sie einen kostenlosen 60-Sekunden-Audit und finden Sie heraus, wo Sie Kunden verlieren.",
+      "83% der Autokäufer recherchieren online, bevor sie einen Händler besuchen. Wenn Ihre Website langsam, auf dem Handy kaputt oder bei Google unsichtbar ist — gehen diese Kunden zu Ihrem Mitbewerber. Finden Sie es in 60 Sekunden heraus.",
     urlPlaceholder: "https://www.ihreautohändler.de",
-    analyzeBtn: "Website analysieren →",
-    analyzingBtn: "Analysiere...",
+    analyzeBtn: "Kostenlosen Bericht holen →",
+    analyzingBtn: "Website wird gescannt...",
     urlError: "Bitte geben Sie eine gültige Website-URL ein",
     stats: [
       { value: "67%", label: "der Käufer verlassen langsame Websites" },
@@ -318,7 +318,7 @@ export default function Home() {
           </form>
 
           <p className="mt-4 text-slate-600 text-sm animate-fade-in-up-delay-4">
-            Free forever · No signup required · Results in under 60 seconds
+            Free report · No credit card required · Results in under 60 seconds
           </p>
 
           {/* Stats */}
@@ -442,7 +442,7 @@ export default function Home() {
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               className="px-8 py-4 rounded-xl bg-teal-500 hover:bg-teal-400 text-white font-semibold text-base transition-all duration-200 glow-btn inline-block"
             >
-              Check Your Website Free →
+              Get My Free Score → No Credit Card Required
             </button>
           </div>
         </div>

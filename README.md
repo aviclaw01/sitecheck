@@ -1,36 +1,141 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SiteCheck — Free Website Audit for German Auto Dealers
 
-## Getting Started
+**[sitecheck.nexprove.com](https://sitecheck.nexprove.com)**
 
-First, run the development server:
+SiteCheck instantly audits dealership websites across 6 key dimensions and generates a detailed action plan. Built to generate leads for [Nexprove](https://www.nexprove.com).
+
+---
+
+## What It Does
+
+Enter any website URL → get a detailed audit report in ~15 seconds:
+
+- **Mobile Responsiveness** — viewport meta, responsive CSS
+- **Page Speed** — load time analysis with recommendations
+- **SEO Basics** — title, description, H1, Open Graph, og:image, robots.txt, sitemap
+- **Local Search Presence** — schema markup, address, phone, Google Maps
+- **Inventory & Booking Features** — vehicle listings, test drive booking, WhatsApp, live chat
+- **Trust & Security** — HTTPS, favicon, analytics, DSGVO cookie consent, security headers
+
+Plus:
+- ⚡ **Quick Wins** — top 5 high-impact fixes ranked by priority
+- 🔴 **Missing Elements** — complete checklist of what's absent
+- 📊 **Competitor Benchmark** — how you compare to the industry average
+- 🔬 **Technical Scan** — 12-point checklist with pass/fail badges
+- 📧 **Lead capture** — email CTA with inline success state
+
+---
+
+## Tech Stack
+
+| Layer | Tech |
+|---|---|
+| Framework | Next.js 15 (App Router) |
+| Styling | Tailwind CSS |
+| Language | TypeScript |
+| Deploy | Vercel |
+| Data | JSON file (leads.json) |
+| Runtime | Node.js (Edge-compatible) |
+
+---
+
+## Local Development
 
 ```bash
+git clone https://github.com/aviclaw01/sitecheck
+cd sitecheck
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# → http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Build for production
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## API Endpoints
 
-To learn more about Next.js, take a look at the following resources:
+### `POST /api/audit`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Audits a website URL and returns a detailed report.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Request:**
+```json
+{ "url": "https://www.example-autohaus.de" }
+```
 
-## Deploy on Vercel
+**Response:**
+```json
+{
+  "url": "https://www.example-autohaus.de",
+  "overallScore": 54,
+  "overallGrade": "D",
+  "scores": [...],
+  "quickWins": [...],
+  "missingElements": [...],
+  "competitorBenchmark": {...},
+  "technicalDetails": {...}
+}
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### `POST /api/subscribe`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Captures a lead (email + audit data).
+
+**Request:**
+```json
+{ "email": "dealer@example.de", "url": "https://...", "score": 54, "grade": "D" }
+```
+
+### `GET /api/subscribe`
+
+Download all leads (requires `Authorization: Bearer <ADMIN_KEY>` header).
+
+---
+
+## Deployment
+
+See **[DEPLOY.md](./DEPLOY.md)** for full Vercel + GitHub Actions instructions.
+
+---
+
+## Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `ADMIN_KEY` | `nexprove-admin` | Bearer token for leads export |
+| `NEXT_PUBLIC_BASE_URL` | `https://sitecheck.nexprove.com` | Base URL for sitemap |
+
+---
+
+## Project Structure
+
+```
+sitecheck/
+├── app/
+│   ├── api/
+│   │   ├── audit/route.ts      # Main audit engine
+│   │   └── subscribe/route.ts  # Lead capture
+│   ├── results/page.tsx        # Results page
+│   ├── sitemap.ts              # Dynamic sitemap
+│   ├── layout.tsx
+│   └── page.tsx                # Landing page
+├── data/
+│   └── leads.json              # Captured leads
+├── public/
+│   └── robots.txt
+├── DEPLOY.md
+└── README.md
+```
+
+---
+
+## Built By
+
+[Nexprove](https://www.nexprove.com) — Premium Product Development Studio  
+From MVP to Scale · React · Next.js · Tailwind · Supabase
