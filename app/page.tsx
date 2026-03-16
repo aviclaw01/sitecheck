@@ -216,7 +216,13 @@ export default function Home() {
             </div>
             <span className="font-semibold text-slate-100 text-sm">SiteCheck</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <a
+              href="/compare"
+              className="text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-teal-400 hover:border-teal-500/50 transition-colors hidden sm:block"
+            >
+              ⚖️ Compare
+            </a>
             <button
               onClick={() => setLang(lang === "en" ? "de" : "en")}
               className="text-xs font-medium px-3 py-1 rounded-full border border-slate-700 text-slate-400 hover:text-teal-400 hover:border-teal-500/50 transition-colors"

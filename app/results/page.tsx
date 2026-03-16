@@ -726,10 +726,10 @@ function ResultsContent() {
                 </p>
               </div>
               <button
-                onClick={() => router.push("/")}
+                onClick={() => router.push("/compare")}
                 className="shrink-0 px-4 py-2 rounded-lg border border-slate-600 text-slate-300 hover:text-teal-400 hover:border-teal-500/50 transition-colors text-xs font-medium"
               >
-                {lang === "de" ? "Mitbewerber prüfen" : "Check a Competitor"} &rarr;
+                {lang === "de" ? "Mitbewerber vs. Wettbewerber →" : "Compare vs Competitor →"}
               </button>
             </div>
           </div>
