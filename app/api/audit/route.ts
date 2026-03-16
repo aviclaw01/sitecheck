@@ -46,6 +46,8 @@ interface AuditResult {
   competitorBenchmark: CompetitorBenchmark;
   technicalDetails: TechnicalDetails;
   pagespeedUrl: string;
+  isDealerSite: boolean;
+  dealerSiteNote?: string;
 }
 
 function scoreToGrade(score: number): string {
@@ -627,6 +629,20 @@ export async function POST(request: NextRequest) {
 
     const pagespeedUrl = `https://pagespeed.web.dev/report?url=${encodeURIComponent(normalizedUrl)}`;
 
+    // Detect if this is likely NOT a local dealer site (brand/manufacturer/directory sites)
+    const nonDealerDomains = [
+      "bmw.de", "mercedes-benz.com", "volkswagen.de", "audi.de", "porsche.com",
+      "opel.de", "ford.de", "toyota.de", "honda.de", "mazda.de", "hyundai.de",
+      "kia.com", "renault.de", "peugeot.de", "citroen.de", "fiat.de", "seat.de",
+      "skoda.de", "volvo.de", "tesla.com", "mobile.de", "autoscout24.de",
+      "slack.com", "stripe.com", "google.com", "amazon.de", "facebook.com",
+    ];
+    const hostname = siteUrl.hostname.toLowerCase().replace(/^www\./, "");
+    const isDealerSite = !nonDealerDomains.some(d => hostname === d || hostname.endsWith("." + d));
+    const dealerSiteNote = !isDealerSite
+      ? "Note: This appears to be a manufacturer or national brand site, not a local dealership. Scores for inventory, booking, and local presence reflect criteria designed for independent dealerships."
+      : undefined;
+
     const result: AuditResult = {
       url: normalizedUrl,
       timestamp: new Date().toISOString(),
@@ -641,6 +657,8 @@ export async function POST(request: NextRequest) {
       competitorBenchmark,
       technicalDetails,
       pagespeedUrl,
+      isDealerSite,
+      dealerSiteNote,
     };
 
     return NextResponse.json(result);

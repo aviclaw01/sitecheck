@@ -48,6 +48,8 @@ interface AuditResult {
   competitorBenchmark?: CompetitorBenchmark;
   technicalDetails?: TechnicalDetails;
   pagespeedUrl?: string;
+  isDealerSite?: boolean;
+  dealerSiteNote?: string;
 }
 
 const gradeColors: Record<string, string> = {
@@ -452,6 +454,14 @@ function ResultsContent() {
               <p className="text-xs text-slate-500 border border-slate-800 rounded-md px-3 py-1.5 inline-block mb-3">
                 {t.dealerNote}
               </p>
+
+              {/* Non-dealer site warning */}
+              {data.isDealerSite === false && data.dealerSiteNote && (
+                <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-amber-500/8 border border-amber-500/20 mb-3">
+                  <span className="text-amber-400 shrink-0 text-sm">⚠️</span>
+                  <p className="text-xs text-amber-300/80 leading-relaxed">{data.dealerSiteNote}</p>
+                </div>
+              )}
 
               {/* Competitor benchmark */}
               {data.competitorBenchmark && (
