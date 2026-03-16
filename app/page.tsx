@@ -197,8 +197,8 @@ export default function Home() {
       });
       const data = await res.json();
       const encoded = encodeURIComponent(normalizedUrl);
-      const dataEncoded = encodeURIComponent(JSON.stringify(data));
-      router.push(`/results?url=${encoded}&data=${dataEncoded}`);
+      // Pass only the URL — results page fetches fresh data (makes share links clean)
+      router.push(`/results?url=${encoded}`);
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);
