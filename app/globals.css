@@ -23,11 +23,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Animations */
+/* Animations — minimal */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -35,46 +35,28 @@ body {
   }
 }
 
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(20, 184, 166, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(20, 184, 166, 0.6);
-  }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-
 .animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
+  animation: fadeInUp 0.4s ease-out forwards;
 }
 
 .animate-fade-in-up-delay-1 {
-  animation: fadeInUp 0.6s ease-out 0.1s forwards;
+  animation: fadeInUp 0.4s ease-out 0.05s forwards;
   opacity: 0;
 }
 
 .animate-fade-in-up-delay-2 {
-  animation: fadeInUp 0.6s ease-out 0.2s forwards;
+  animation: fadeInUp 0.4s ease-out 0.1s forwards;
   opacity: 0;
 }
 
 .animate-fade-in-up-delay-3 {
-  animation: fadeInUp 0.6s ease-out 0.3s forwards;
+  animation: fadeInUp 0.4s ease-out 0.15s forwards;
   opacity: 0;
 }
 
 .animate-fade-in-up-delay-4 {
-  animation: fadeInUp 0.6s ease-out 0.4s forwards;
+  animation: fadeInUp 0.4s ease-out 0.2s forwards;
   opacity: 0;
-}
-
-.glow-btn {
-  animation: pulse-glow 2.5s ease-in-out infinite;
 }
 
 /* Glassmorphism */
@@ -93,22 +75,4 @@ body {
 
 .score-bar-fill {
   animation: growWidth 1s ease-out forwards;
-}
-
-/* Gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, #14b8a6, #34d399, #14b8a6);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmer 3s linear infinite;
-}
-
-/* Grid pattern */
-.grid-pattern {
-  background-image: 
-    linear-gradient(rgba(148, 163, 184, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
 }

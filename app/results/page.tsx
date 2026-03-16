@@ -83,8 +83,8 @@ function GradeRing({ score, grade }: { score: number; grade: string }) {
   const offset = circumference - (score / 100) * circumference;
 
   return (
-    <div className="relative w-40 h-40 mx-auto">
-      <svg className="w-40 h-40 -rotate-90" viewBox="0 0 120 120">
+    <div className="relative w-36 h-36 mx-auto">
+      <svg className="w-36 h-36 -rotate-90" viewBox="0 0 120 120">
         <circle
           cx="60"
           cy="60"
@@ -106,8 +106,8 @@ function GradeRing({ score, grade }: { score: number; grade: string }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className={`text-5xl font-bold ${gradeColors[grade]}`}>{grade}</span>
-        <span className="text-slate-400 text-sm">{score}/100</span>
+        <span className={`text-4xl font-bold ${gradeColors[grade]}`}>{grade}</span>
+        <span className="text-slate-400 text-xs">{score}/100</span>
       </div>
     </div>
   );
@@ -128,7 +128,7 @@ function ScoreBar({
   }, [score]);
 
   return (
-    <div className="relative h-2 w-full rounded-full bg-slate-800 overflow-hidden">
+    <div className="relative h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
       <div
         className={`absolute left-0 top-0 h-full rounded-full transition-all duration-1000 ease-out ${statusBarColors[status]}`}
         style={{ width: `${width}%` }}
@@ -140,49 +140,48 @@ function ScoreBar({
 function TechBadge({ ok, label }: { ok: boolean; label: string }) {
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
         ok
           ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
           : "bg-red-500/10 text-red-400 border border-red-500/20"
       }`}
     >
-      {ok ? "✓" : "✗"} {label}
+      {ok ? "\u2713" : "\u2717"} {label}
     </span>
   );
 }
 
 function EmailSuccessState({ lang }: { lang: "en" | "de" }) {
   return (
-    <div className="glass rounded-xl border border-teal-500/30 p-6 text-center">
-      <div className="w-12 h-12 rounded-full bg-teal-500/20 flex items-center justify-center mx-auto mb-4">
-        <span className="text-2xl">✅</span>
+    <div className="rounded-lg border border-teal-500/30 bg-slate-900/60 p-5 text-center">
+      <div className="w-10 h-10 rounded-full bg-teal-500/20 flex items-center justify-center mx-auto mb-3">
+        <span className="text-xl text-teal-400">&#10003;</span>
       </div>
-      <h4 className="text-lg font-semibold text-teal-400 mb-2">
+      <h4 className="text-base font-semibold text-teal-400 mb-1">
         {lang === "de" ? "Wir melden uns innerhalb von 24 Stunden!" : "We'll be in touch within 24 hours!"}
       </h4>
-      <p className="text-slate-400 text-sm mb-4">
+      <p className="text-slate-400 text-xs mb-3">
         {lang === "de"
           ? "Unser Team bei Nexprove wird sich mit einem persönlichen Aktionsplan für Ihre Website melden."
           : "Our team at Nexprove will reach out with a personalised action plan for your website."}
       </p>
-      <div className="flex flex-col gap-2">
-        <a
-          href="https://www.nexprove.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block w-full py-2 rounded-xl bg-teal-500/20 text-teal-400 text-sm font-medium hover:bg-teal-500/30 transition-colors"
-        >
-          {lang === "de" ? "Nexprove besuchen →" : "Visit nexprove.com →"}
-        </a>
-        <p className="text-slate-600 text-xs">
-          {lang === "de"
-            ? "Kein Spam, versprochen. Nur ein kurzes Gespräch."
-            : "No spam, ever. Just a quick call."}
-        </p>
-      </div>
+      <a
+        href="https://www.nexprove.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-block w-full py-2 rounded-lg bg-teal-500/20 text-teal-400 text-xs font-medium hover:bg-teal-500/30 transition-colors"
+      >
+        {lang === "de" ? "Nexprove besuchen" : "Visit nexprove.com"} &rarr;
+      </a>
     </div>
   );
 }
+
+const INVENTORY_CATEGORY_NAMES = [
+  "Inventory & Booking Features",
+  "Inventar & Buchungsfunktionen",
+  "Inventory & Booking",
+];
 
 function ResultsContent() {
   const searchParams = useSearchParams();
@@ -198,6 +197,7 @@ function ResultsContent() {
   const [lang, setLang] = useState<"en" | "de">("en");
   const [showAllMissing, setShowAllMissing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showMethodology, setShowMethodology] = useState(false);
 
   const urlParam = searchParams.get("url") || "";
   const dataParam = searchParams.get("data");
@@ -270,22 +270,24 @@ function ResultsContent() {
 
   const labels = {
     en: {
-      back: "← Analyze Another Website",
+      back: "\u2190 Analyze Another Website",
       title: "Website Audit Report",
       for: "for",
       overall: "Overall Score",
+      dealerNote: "Scored against 20 auto dealer criteria \u2014 not a general web audit",
       categories: "Category Breakdown",
-      quickWins: "⚡ Quick Wins",
+      quickWins: "Quick Wins",
       quickWinsDesc: "These fixes take less than a day and have the highest impact:",
-      missingElements: "🔴 Missing Elements",
-      benchmark: "📊 Industry Benchmark",
-      techDetails: "🔬 Technical Scan",
-      cta: "Get Your Free Action Plan",
+      missingElements: "Missing Elements",
+      benchmark: "Industry Benchmark",
+      techDetails: "Technical Scan",
+      cta: "Get Free Action Plan from Nexprove",
       ctaDesc:
-        "Our team at Nexprove will build you a personalised fix list and quote — no obligation.",
+        "Our team will build you a personalised fix list and quote \u2014 no obligation.",
       ctaPlaceholder: "your@email.com",
-      ctaBtn: "Send Me the Action Plan →",
-      ctaNote: "Free report · No credit card · We'll be in touch within 24 hours",
+      ctaBtn: "Send Me the Action Plan",
+      ctaNote: "Free \u00b7 No credit card \u00b7 Response within 24 hours",
+      ctaContact: "Or book a discovery call",
       footerText: "Report generated by SiteCheck",
       poweredBy: "Powered by Nexprove",
       langToggle: "DE",
@@ -293,24 +295,31 @@ function ResultsContent() {
       notReachable: "Site not reachable",
       showMore: "Show all missing elements",
       showLess: "Show fewer",
+      methodologyTitle: "How is this score calculated?",
+      methodologyBody:
+        "This audit checks 20 criteria specifically relevant to auto dealerships in Germany: mobile readiness, local search visibility, page speed, inventory features, booking tools, and trust signals. Criteria like WhatsApp contact, Google Maps, and vehicle inventory are weighted heavily because they directly impact lead generation for dealerships.",
+      inventoryNote:
+        "This category only applies to dealership websites. Generic business sites will score low here by design.",
     },
     de: {
-      back: "← Andere Website analysieren",
+      back: "\u2190 Andere Website analysieren",
       title: "Website-Audit-Bericht",
       for: "für",
       overall: "Gesamtpunktzahl",
+      dealerNote: "Bewertet anhand von 20 Autohändler-Kriterien \u2014 kein allgemeiner Web-Audit",
       categories: "Kategorien-Übersicht",
-      quickWins: "⚡ Schnelle Gewinne",
+      quickWins: "Schnelle Verbesserungen",
       quickWinsDesc: "Diese Korrekturen dauern weniger als einen Tag und haben den größten Effekt:",
-      missingElements: "🔴 Fehlende Elemente",
-      benchmark: "📊 Branchen-Benchmark",
-      techDetails: "🔬 Technischer Scan",
-      cta: "Kostenloser Aktionsplan",
+      missingElements: "Fehlende Elemente",
+      benchmark: "Branchen-Benchmark",
+      techDetails: "Technischer Scan",
+      cta: "Kostenloser Aktionsplan von Nexprove",
       ctaDesc:
-        "Unser Team bei Nexprove erstellt Ihnen eine persönliche Korrektliste und ein Angebot – unverbindlich.",
+        "Unser Team erstellt Ihnen eine persönliche Korrektliste und ein Angebot \u2014 unverbindlich.",
       ctaPlaceholder: "ihre@email.de",
-      ctaBtn: "Aktionsplan zusenden →",
-      ctaNote: "Kostenlos · Keine Kreditkarte · Rückmeldung innerhalb von 24 Stunden",
+      ctaBtn: "Aktionsplan zusenden",
+      ctaNote: "Kostenlos \u00b7 Keine Kreditkarte \u00b7 Rückmeldung innerhalb von 24 Stunden",
+      ctaContact: "Oder buchen Sie ein Erstgespräch",
       footerText: "Bericht erstellt von SiteCheck",
       poweredBy: "Entwickelt von Nexprove",
       langToggle: "EN",
@@ -318,6 +327,11 @@ function ResultsContent() {
       notReachable: "Website nicht erreichbar",
       showMore: "Alle fehlenden Elemente anzeigen",
       showLess: "Weniger anzeigen",
+      methodologyTitle: "Wie wird dieser Score berechnet?",
+      methodologyBody:
+        "Dieser Audit prüft 20 Kriterien, die speziell für Autohäuser in Deutschland relevant sind: Mobile-Optimierung, lokale Suchsichtbarkeit, Ladezeit, Fahrzeugbestand-Funktionen, Buchungstools und Vertrauenssignale. Kriterien wie WhatsApp-Kontakt, Google Maps und Fahrzeugbestand werden stark gewichtet, da sie die Lead-Generierung für Autohäuser direkt beeinflussen.",
+      inventoryNote:
+        "Diese Kategorie gilt nur für Autohaus-Websites. Allgemeine Unternehmensseiten erhalten hier absichtlich niedrige Punktzahlen.",
     },
   };
 
@@ -330,7 +344,7 @@ function ResultsContent() {
           <p className="text-red-400 mb-4">{error}</p>
           <button
             onClick={() => router.push("/")}
-            className="text-teal-400 hover:text-teal-300 transition-colors"
+            className="text-teal-400 hover:text-teal-300 transition-colors text-sm"
           >
             {t.back}
           </button>
@@ -343,9 +357,9 @@ function ResultsContent() {
     return (
       <div className="min-h-screen bg-[#020817] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-400">Analyzing your website...</p>
-          <p className="text-slate-600 text-sm mt-2">Checking 20+ signals — this takes ~15 seconds</p>
+          <div className="w-10 h-10 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-slate-400 text-sm">Analyzing your website...</p>
+          <p className="text-slate-600 text-xs mt-1">Checking 20 signals — ~15 seconds</p>
         </div>
       </div>
     );
@@ -356,28 +370,28 @@ function ResultsContent() {
   const shownMissing = showAllMissing ? missing : missing.slice(0, 6);
 
   return (
-    <div className="min-h-screen bg-[#020817] text-slate-100 grid-pattern">
+    <div className="min-h-screen bg-[#020817] text-slate-100">
       {/* Nav */}
       <nav className="sticky top-0 z-50 glass border-b border-slate-800/50">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-12 flex items-center justify-between gap-4">
           <button
             onClick={() => router.push("/")}
-            className="text-slate-400 hover:text-teal-400 transition-colors text-sm flex items-center gap-1"
+            className="text-slate-400 hover:text-teal-400 transition-colors text-xs"
           >
             {t.back}
           </button>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setLang(lang === "en" ? "de" : "en")}
-              className="text-xs font-medium px-3 py-1.5 rounded-full border border-slate-700 text-slate-400 hover:text-teal-400 hover:border-teal-500/50 transition-all"
+              className="text-xs font-medium px-2.5 py-1 rounded-full border border-slate-700 text-slate-400 hover:text-teal-400 hover:border-teal-500/50 transition-colors"
             >
               {t.langToggle}
             </button>
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-teal-500 flex items-center justify-center text-white font-bold text-xs">
+            <Link href="/" className="flex items-center gap-1.5">
+              <div className="w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white font-bold text-[10px]">
                 SC
               </div>
-              <span className="font-semibold text-slate-100 text-sm hidden sm:block">
+              <span className="font-semibold text-slate-100 text-xs hidden sm:block">
                 SiteCheck
               </span>
             </Link>
@@ -385,14 +399,14 @@ function ResultsContent() {
         </div>
       </nav>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
-        <div className="mb-8 animate-fade-in-up">
+        <div className="mb-6">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
+              <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
                 <span>{t.title}</span>
-                <span>·</span>
+                <span>&middot;</span>
                 <a
                   href={data.url}
                   target="_blank"
@@ -402,10 +416,10 @@ function ResultsContent() {
                   {displayUrl}
                 </a>
               </div>
-              <p className="text-slate-500 text-sm">
+              <p className="text-slate-600 text-xs">
                 {data.loadable
-                  ? `${t.loadedIn} ${(data.loadTimeMs / 1000).toFixed(1)}s · ${new Date(data.timestamp).toLocaleString()}`
-                  : `${t.notReachable} · ${new Date(data.timestamp).toLocaleString()}`}
+                  ? `${t.loadedIn} ${(data.loadTimeMs / 1000).toFixed(1)}s \u00b7 ${new Date(data.timestamp).toLocaleString()}`
+                  : `${t.notReachable} \u00b7 ${new Date(data.timestamp).toLocaleString()}`}
               </p>
             </div>
             <button
@@ -416,35 +430,40 @@ function ResultsContent() {
                   setTimeout(() => setCopied(false), 2000);
                 });
               }}
-              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-teal-400 hover:border-teal-500/40 transition-all text-xs font-medium"
+              className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-md border border-slate-700 text-slate-400 hover:text-teal-400 hover:border-teal-500/40 transition-colors text-xs"
             >
-              {copied ? "✓ Copied!" : "🔗 Share report"}
+              {copied ? "\u2713 Copied" : "Share report"}
             </button>
           </div>
         </div>
 
-        {/* Overall Score + Competitor Benchmark */}
-        <div className="glass rounded-2xl border border-slate-800/50 p-6 sm:p-8 mb-6 animate-fade-in-up-delay-1">
-          <div className="flex flex-col sm:flex-row items-center gap-8">
+        {/* Overall Score */}
+        <div className="rounded-xl border border-slate-800/50 bg-slate-900/40 p-5 sm:p-6 mb-4">
+          <div className="flex flex-col sm:flex-row items-center gap-6">
             <div className="shrink-0">
               <GradeRing score={data.overallScore} grade={data.overallGrade} />
             </div>
             <div className="flex-1 text-center sm:text-left">
-              <h2 className="text-xl font-bold text-slate-100 mb-2">{t.overall}</h2>
-              <p className="text-slate-300 leading-relaxed mb-4">{data.summary}</p>
+              <h2 className="text-lg font-bold text-slate-100 mb-1">{t.overall}</h2>
+              <p className="text-slate-300 text-sm leading-relaxed mb-3">{data.summary}</p>
+
+              {/* Dealer-specific disclaimer */}
+              <p className="text-xs text-slate-500 border border-slate-800 rounded-md px-3 py-1.5 inline-block mb-3">
+                {t.dealerNote}
+              </p>
 
               {/* Competitor benchmark */}
               {data.competitorBenchmark && (
-                <div className="inline-flex flex-col gap-1 px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 mb-4">
-                  <p className="text-xs text-slate-500 uppercase tracking-wide font-medium">
+                <div className="flex flex-col gap-0.5 px-3 py-2 rounded-lg bg-slate-800/50 border border-slate-700/50 mb-3">
+                  <p className="text-[10px] text-slate-500 uppercase tracking-wide font-medium">
                     {t.benchmark}
                   </p>
-                  <p className="text-sm text-slate-300">
+                  <p className="text-xs text-slate-300">
                     Industry avg:{" "}
                     <span className="font-bold text-slate-100">
                       {data.competitorBenchmark.averageScore}/100
                     </span>{" "}
-                    · Your rank:{" "}
+                    &middot; Your rank:{" "}
                     <span
                       className={`font-bold ${
                         data.overallScore >= data.competitorBenchmark.averageScore
@@ -455,16 +474,16 @@ function ResultsContent() {
                       {data.competitorBenchmark.yourRank}
                     </span>
                   </p>
-                  <p className="text-xs text-slate-500">{data.competitorBenchmark.message}</p>
+                  <p className="text-[10px] text-slate-500">{data.competitorBenchmark.message}</p>
                 </div>
               )}
 
-              <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
+              <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 {data.scores.map((s) => (
-                  <div key={s.category} className="flex items-center gap-1.5 text-sm">
-                    <span className={`w-2 h-2 rounded-full ${statusColors[s.status]}`} />
-                    <span className="text-slate-400 text-xs">{s.category}</span>
-                    <span className={`font-bold text-xs ${gradeColors[s.grade]}`}>
+                  <div key={s.category} className="flex items-center gap-1 text-xs">
+                    <span className={`w-1.5 h-1.5 rounded-full ${statusColors[s.status]}`} />
+                    <span className="text-slate-500">{s.category}</span>
+                    <span className={`font-bold ${gradeColors[s.grade]}`}>
                       {s.grade}
                     </span>
                   </div>
@@ -474,15 +493,33 @@ function ResultsContent() {
           </div>
         </div>
 
+        {/* Scoring Methodology — collapsible */}
+        <div className="mb-4">
+          <button
+            onClick={() => setShowMethodology(!showMethodology)}
+            className="text-xs text-slate-500 hover:text-teal-400 transition-colors flex items-center gap-1"
+          >
+            <span>{showMethodology ? "\u25B2" : "\u25BC"}</span>
+            {t.methodologyTitle}
+          </button>
+          {showMethodology && (
+            <div className="mt-2 rounded-lg border border-slate-800/50 bg-slate-900/40 p-4">
+              <p className="text-xs text-slate-400 leading-relaxed">
+                {t.methodologyBody}
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* Quick Wins */}
         {data.quickWins && data.quickWins.length > 0 && (
-          <div className="glass rounded-2xl border border-amber-500/20 bg-amber-950/10 p-5 mb-6 animate-fade-in-up-delay-1">
-            <h3 className="text-base font-bold text-amber-400 mb-1">{t.quickWins}</h3>
-            <p className="text-slate-500 text-xs mb-3">{t.quickWinsDesc}</p>
-            <ul className="space-y-2">
+          <div className="rounded-xl border border-amber-500/20 bg-amber-950/10 p-4 mb-4">
+            <h3 className="text-sm font-bold text-amber-400 mb-0.5">{t.quickWins}</h3>
+            <p className="text-slate-500 text-xs mb-2">{t.quickWinsDesc}</p>
+            <ul className="space-y-1.5">
               {data.quickWins.map((win, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
-                  <span className="text-amber-400 shrink-0 mt-0.5 font-bold">{i + 1}.</span>
+                <li key={i} className="flex items-start gap-2 text-xs text-slate-300">
+                  <span className="text-amber-400 shrink-0 font-bold">{i + 1}.</span>
                   {win}
                 </li>
               ))}
@@ -491,79 +528,89 @@ function ResultsContent() {
         )}
 
         {/* Category Scores */}
-        <div className="mb-6 animate-fade-in-up-delay-2">
-          <h2 className="text-xl font-bold text-slate-100 mb-4">{t.categories}</h2>
-          <div className="space-y-3">
-            {data.scores.map((score) => (
-              <div
-                key={score.category}
-                className="glass rounded-xl border border-slate-800/50 hover:border-slate-700/50 transition-all duration-200 overflow-hidden"
-              >
-                <button
-                  className="w-full p-4 sm:p-5 text-left"
-                  onClick={() =>
-                    setExpandedScore(
-                      expandedScore === score.category ? null : score.category
-                    )
-                  }
+        <div className="mb-4">
+          <h2 className="text-lg font-bold text-slate-100 mb-3">{t.categories}</h2>
+          <div className="space-y-2">
+            {data.scores.map((score) => {
+              const isInventoryCategory = INVENTORY_CATEGORY_NAMES.some(
+                (name) => score.category.toLowerCase().includes(name.toLowerCase())
+              );
+              return (
+                <div
+                  key={score.category}
+                  className="rounded-lg border border-slate-800/50 bg-slate-900/40 overflow-hidden"
                 >
-                  <div className="flex items-center justify-between gap-4 mb-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span
-                        className={`w-2.5 h-2.5 rounded-full shrink-0 ${statusColors[score.status]}`}
-                      />
-                      <span className="font-medium text-slate-100 text-sm sm:text-base truncate">
-                        {score.category}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3 shrink-0">
-                      <span className="text-slate-400 text-sm">{score.score}/100</span>
-                      <span className={`text-xl font-bold ${gradeColors[score.grade]}`}>
-                        {score.grade}
-                      </span>
-                      <span className="text-slate-600 text-xs">
-                        {expandedScore === score.category ? "▲" : "▼"}
-                      </span>
-                    </div>
-                  </div>
-                  <ScoreBar score={score.score} status={score.status} />
-                </button>
-
-                {expandedScore === score.category && (
-                  <div className="px-4 sm:px-5 pb-5 border-t border-slate-800/50 pt-4">
-                    <p className="text-slate-300 text-sm mb-4 leading-relaxed">
-                      {score.explanation}
-                    </p>
-                    {score.recommendations.length > 0 && (
-                      <div>
-                        <p className="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-2">
-                          Recommendations
-                        </p>
-                        <ul className="space-y-2">
-                          {score.recommendations.map((rec, i) => (
-                            <li
-                              key={i}
-                              className="flex items-start gap-2 text-sm text-slate-300"
-                            >
-                              <span className="text-teal-400 shrink-0 mt-0.5">→</span>
-                              {rec}
-                            </li>
-                          ))}
-                        </ul>
+                  <button
+                    className="w-full p-3 sm:p-4 text-left"
+                    onClick={() =>
+                      setExpandedScore(
+                        expandedScore === score.category ? null : score.category
+                      )
+                    }
+                  >
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span
+                          className={`w-2 h-2 rounded-full shrink-0 ${statusColors[score.status]}`}
+                        />
+                        <span className="font-medium text-slate-100 text-sm truncate">
+                          {score.category}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-slate-400 text-xs">{score.score}/100</span>
+                        <span className={`text-lg font-bold ${gradeColors[score.grade]}`}>
+                          {score.grade}
+                        </span>
+                        <span className="text-slate-600 text-[10px]">
+                          {expandedScore === score.category ? "\u25B2" : "\u25BC"}
+                        </span>
+                      </div>
+                    </div>
+                    <ScoreBar score={score.score} status={score.status} />
+                  </button>
+
+                  {expandedScore === score.category && (
+                    <div className="px-3 sm:px-4 pb-4 border-t border-slate-800/50 pt-3">
+                      {isInventoryCategory && (
+                        <p className="text-[11px] text-slate-500 bg-slate-800/50 rounded px-2.5 py-1.5 mb-3 border border-slate-700/50">
+                          {t.inventoryNote}
+                        </p>
+                      )}
+                      <p className="text-slate-300 text-xs mb-3 leading-relaxed">
+                        {score.explanation}
+                      </p>
+                      {score.recommendations.length > 0 && (
+                        <div>
+                          <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wide mb-1.5">
+                            Recommendations
+                          </p>
+                          <ul className="space-y-1.5">
+                            {score.recommendations.map((rec, i) => (
+                              <li
+                                key={i}
+                                className="flex items-start gap-1.5 text-xs text-slate-300"
+                              >
+                                <span className="text-teal-400 shrink-0">&rarr;</span>
+                                {rec}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
         {/* Technical Details */}
         {data.technicalDetails && (
-          <div className="glass rounded-2xl border border-slate-800/50 p-5 mb-6 animate-fade-in-up-delay-2">
-            <h3 className="text-base font-bold text-slate-100 mb-3">{t.techDetails}</h3>
-            <div className="flex flex-wrap gap-2">
+          <div className="rounded-xl border border-slate-800/50 bg-slate-900/40 p-4 mb-4">
+            <h3 className="text-sm font-bold text-slate-100 mb-2">{t.techDetails}</h3>
+            <div className="flex flex-wrap gap-1.5">
               <TechBadge ok={data.technicalDetails.https} label="HTTPS" />
               <TechBadge ok={data.technicalDetails.hasFavicon} label="Favicon" />
               <TechBadge ok={data.technicalDetails.hasOgImage} label="og:image" />
@@ -582,24 +629,24 @@ function ResultsContent() {
 
         {/* Missing Elements */}
         {missing.length > 0 && (
-          <div className="glass rounded-2xl border border-red-500/20 bg-red-950/10 p-5 mb-6 animate-fade-in-up-delay-2">
-            <h3 className="text-base font-bold text-red-400 mb-3">
+          <div className="rounded-xl border border-red-500/20 bg-red-950/10 p-4 mb-4">
+            <h3 className="text-sm font-bold text-red-400 mb-2">
               {t.missingElements} ({missing.length})
             </h3>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {shownMissing.map((item, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs bg-red-500/10 text-red-400 border border-red-500/20"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-red-500/10 text-red-400 border border-red-500/20"
                 >
-                  ✗ {item}
+                  &#10007; {item}
                 </span>
               ))}
             </div>
             {missing.length > 6 && (
               <button
                 onClick={() => setShowAllMissing(!showAllMissing)}
-                className="mt-3 text-xs text-slate-500 hover:text-teal-400 transition-colors"
+                className="mt-2 text-xs text-slate-500 hover:text-teal-400 transition-colors"
               >
                 {showAllMissing ? t.showLess : `${t.showMore} (${missing.length - 6} more)`}
               </button>
@@ -608,66 +655,69 @@ function ResultsContent() {
         )}
 
         {/* Email CTA */}
-        <div className="animate-fade-in-up-delay-3">
-          <div className="rounded-2xl border border-teal-500/30 bg-gradient-to-br from-teal-950/40 via-slate-900/60 to-slate-900/60 p-6 sm:p-8 glass">
-            <div className="flex flex-col sm:flex-row gap-6 items-start">
-              <div className="flex-1">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-400 text-xs font-medium mb-3">
-                  🚀 Free Consultation
-                </div>
-                <h3 className="text-xl font-bold text-slate-100 mb-2">{t.cta}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed mb-2">{t.ctaDesc}</p>
-                <p className="text-slate-500 text-xs">
-                  Your website scored{" "}
-                  <span className={`font-bold ${gradeColors[data.overallGrade]}`}>
-                    {data.overallGrade} ({data.overallScore}/100)
-                  </span>
-                  {data.missingElements && data.missingElements.length > 0 && (
-                    <>
-                      {" "}· {data.missingElements.length} issues detected
-                    </>
-                  )}
-                </p>
-              </div>
-              <div className="w-full sm:w-80 shrink-0">
-                {emailSent ? (
-                  <EmailSuccessState lang={lang} />
-                ) : (
-                  <form onSubmit={handleEmailSubmit} className="space-y-3">
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder={t.ctaPlaceholder}
-                      className="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700 text-slate-100 placeholder-slate-600 outline-none focus:border-teal-500/50 transition-colors text-sm"
-                      disabled={emailLoading}
-                      autoComplete="email"
-                    />
-                    {emailError && (
-                      <p className="text-red-400 text-xs">{emailError}</p>
-                    )}
-                    <button
-                      type="submit"
-                      disabled={emailLoading}
-                      className="w-full px-5 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold text-sm transition-all duration-200 glow-btn"
-                    >
-                      {emailLoading ? "Sending..." : t.ctaBtn}
-                    </button>
-                    <p className="text-slate-600 text-xs text-center">{t.ctaNote}</p>
-                  </form>
+        <div className="rounded-xl border border-teal-500/20 bg-teal-950/20 p-5 sm:p-6">
+          <div className="flex flex-col sm:flex-row gap-5 items-start">
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-slate-100 mb-1">{t.cta}</h3>
+              <p className="text-slate-400 text-xs leading-relaxed mb-2">{t.ctaDesc}</p>
+              <p className="text-slate-500 text-xs">
+                Your website scored{" "}
+                <span className={`font-bold ${gradeColors[data.overallGrade]}`}>
+                  {data.overallGrade} ({data.overallScore}/100)
+                </span>
+                {data.missingElements && data.missingElements.length > 0 && (
+                  <>
+                    {" "}&middot; {data.missingElements.length} issues detected
+                  </>
                 )}
-              </div>
+              </p>
+              <a
+                href="https://www.nexprove.com/en/contact"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-2 text-xs text-teal-400 hover:text-teal-300 transition-colors"
+              >
+                {t.ctaContact} at nexprove.com/en/contact &rarr;
+              </a>
+            </div>
+            <div className="w-full sm:w-72 shrink-0">
+              {emailSent ? (
+                <EmailSuccessState lang={lang} />
+              ) : (
+                <form onSubmit={handleEmailSubmit} className="space-y-2">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t.ctaPlaceholder}
+                    className="w-full px-3 py-2.5 rounded-lg bg-slate-900/80 border border-slate-700 text-slate-100 placeholder-slate-600 outline-none focus:border-teal-500/50 transition-colors text-xs"
+                    disabled={emailLoading}
+                    autoComplete="email"
+                  />
+                  {emailError && (
+                    <p className="text-red-400 text-xs">{emailError}</p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={emailLoading}
+                    className="w-full px-4 py-2.5 rounded-lg bg-teal-500 hover:bg-teal-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold text-xs transition-colors"
+                  >
+                    {emailLoading ? "Sending..." : t.ctaBtn}
+                  </button>
+                  <p className="text-slate-600 text-[10px] text-center">{t.ctaNote}</p>
+                </form>
+              )}
             </div>
           </div>
         </div>
 
         {/* Check Competitor CTA */}
-        <div className="mt-6 animate-fade-in-up-delay-3">
-          <div className="rounded-2xl border border-slate-700/50 bg-slate-900/40 p-5 glass">
-            <div className="flex flex-col sm:flex-row items-center gap-4">
+        <div className="mt-4">
+          <div className="rounded-xl border border-slate-700/50 bg-slate-900/40 p-4">
+            <div className="flex flex-col sm:flex-row items-center gap-3">
               <div className="flex-1 text-center sm:text-left">
-                <p className="text-sm font-semibold text-slate-200 mb-1">
-                  🔍 {lang === "de" ? "Wie schneidet Ihr Mitbewerber ab?" : "How does your competitor score?"}
+                <p className="text-xs font-semibold text-slate-200 mb-0.5">
+                  {lang === "de" ? "Wie schneidet Ihr Mitbewerber ab?" : "How does your competitor score?"}
                 </p>
                 <p className="text-slate-500 text-xs">
                   {lang === "de"
@@ -677,26 +727,26 @@ function ResultsContent() {
               </div>
               <button
                 onClick={() => router.push("/")}
-                className="shrink-0 px-5 py-2.5 rounded-xl border border-slate-600 text-slate-300 hover:text-teal-400 hover:border-teal-500/50 transition-all text-sm font-medium"
+                className="shrink-0 px-4 py-2 rounded-lg border border-slate-600 text-slate-300 hover:text-teal-400 hover:border-teal-500/50 transition-colors text-xs font-medium"
               >
-                {lang === "de" ? "Mitbewerber prüfen →" : "Check a Competitor →"}
+                {lang === "de" ? "Mitbewerber prüfen" : "Check a Competitor"} &rarr;
               </button>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="mt-10 pt-6 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-2 text-slate-600 text-xs">
+        <div className="mt-8 pt-4 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-2 text-slate-600 text-xs">
           <span>
-            {t.footerText} · {new Date(data.timestamp).toLocaleDateString()}
+            {t.footerText} &middot; {new Date(data.timestamp).toLocaleDateString()}
           </span>
           <a
             href="https://www.nexprove.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-teal-400 transition-colors flex items-center gap-1"
+            className="hover:text-teal-400 transition-colors"
           >
-            {t.poweredBy} →
+            {t.poweredBy} &rarr;
           </a>
         </div>
       </main>
@@ -710,8 +760,8 @@ export default function ResultsPage() {
       fallback={
         <div className="min-h-screen bg-[#020817] flex items-center justify-center">
           <div className="text-center">
-            <div className="w-12 h-12 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-slate-400">Loading results...</p>
+            <div className="w-10 h-10 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-slate-400 text-sm">Loading results...</p>
           </div>
         </div>
       }
