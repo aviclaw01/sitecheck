@@ -47,6 +47,7 @@ interface AuditResult {
   missingElements?: string[];
   competitorBenchmark?: CompetitorBenchmark;
   technicalDetails?: TechnicalDetails;
+  pagespeedUrl?: string;
 }
 
 const gradeColors: Record<string, string> = {
@@ -624,6 +625,24 @@ function ResultsContent() {
               <TechBadge ok={data.technicalDetails.hasWhatsApp} label="WhatsApp" />
               <TechBadge ok={data.technicalDetails.hasStructuredData} label="Schema.org" />
             </div>
+          </div>
+        )}
+
+        {/* Verify with Google PageSpeed */}
+        {data.pagespeedUrl && (
+          <div className="flex items-center justify-between px-4 py-3 rounded-xl border border-slate-800/50 bg-slate-900/30 mb-3 animate-fade-in-up-delay-2">
+            <div>
+              <p className="text-xs font-medium text-slate-400">Want a second opinion?</p>
+              <p className="text-xs text-slate-600 mt-0.5">Verify page speed with Google's own tool</p>
+            </div>
+            <a
+              href={data.pagespeedUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition-colors text-xs font-medium"
+            >
+              🔗 Google PageSpeed →
+            </a>
           </div>
         )}
 

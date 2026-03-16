@@ -45,6 +45,7 @@ interface AuditResult {
   missingElements: string[];
   competitorBenchmark: CompetitorBenchmark;
   technicalDetails: TechnicalDetails;
+  pagespeedUrl: string;
 }
 
 function scoreToGrade(score: number): string {
@@ -268,23 +269,23 @@ export async function POST(request: NextRequest) {
     const mobileScore = !loadable
       ? 20
       : hasMeta && hasResponsiveCSS
-      ? Math.min(95, 75 + Math.floor(Math.random() * 15))
+      ? 82
       : hasMeta
-      ? Math.min(70, 50 + Math.floor(Math.random() * 15))
-      : Math.min(35, 15 + Math.floor(Math.random() * 15));
+      ? 58
+      : 22;
 
     // 2. Page Speed (weight: high)
     let speedScore: number;
     if (!loadable) {
       speedScore = 10;
     } else if (loadTimeMs < 1500) {
-      speedScore = Math.min(95, 80 + Math.floor(Math.random() * 12));
+      speedScore = 88;
     } else if (loadTimeMs < 3000) {
-      speedScore = Math.min(72, 55 + Math.floor(Math.random() * 15));
+      speedScore = 63;
     } else if (loadTimeMs < 6000) {
-      speedScore = Math.min(50, 30 + Math.floor(Math.random() * 18));
+      speedScore = 38;
     } else {
-      speedScore = Math.min(25, 10 + Math.floor(Math.random() * 12));
+      speedScore = 15;
     }
 
     // 3. SEO Basics (weight: medium-high)
@@ -300,7 +301,7 @@ export async function POST(request: NextRequest) {
       (hasSitemap ? 5 : 0);
     const seoScore = !loadable
       ? 15
-      : Math.min(95, Math.max(10, seoPoints + Math.floor(Math.random() * 8)));
+      : Math.min(95, Math.max(10, seoPoints));
 
     // 4. Local Search Presence (weight: critical for dealers)
     const localPoints =
@@ -311,7 +312,7 @@ export async function POST(request: NextRequest) {
       (hasStructuredData ? 12 : 0);
     const localScore = !loadable
       ? 10
-      : Math.min(95, Math.max(15, localPoints + Math.floor(Math.random() * 12)));
+      : Math.min(95, Math.max(15, localPoints));
 
     // 5. Inventory & Booking Features (weight: high for dealers)
     const hasLiveChat =
@@ -328,7 +329,7 @@ export async function POST(request: NextRequest) {
       (hasWhatsApp ? 10 : 0);
     const featScore = !loadable
       ? 15
-      : Math.min(95, Math.max(10, featPoints + Math.floor(Math.random() * 12)));
+      : Math.min(95, Math.max(10, featPoints));
 
     // 6. Trust & User Experience (weight: medium)
     const uxPoints =
@@ -339,7 +340,7 @@ export async function POST(request: NextRequest) {
       (hasCSP ? 8 : 0) +
       (hasXContentType ? 8 : 0) +
       (hasAnalytics ? 12 : 0) +
-      Math.floor(Math.random() * 10);
+      5;
     const uxScore = !loadable
       ? 10
       : Math.min(90, Math.max(8, uxPoints));
@@ -624,6 +625,8 @@ export async function POST(request: NextRequest) {
       hasStructuredData,
     };
 
+    const pagespeedUrl = `https://pagespeed.web.dev/report?url=${encodeURIComponent(normalizedUrl)}`;
+
     const result: AuditResult = {
       url: normalizedUrl,
       timestamp: new Date().toISOString(),
@@ -637,6 +640,7 @@ export async function POST(request: NextRequest) {
       missingElements,
       competitorBenchmark,
       technicalDetails,
+      pagespeedUrl,
     };
 
     return NextResponse.json(result);
