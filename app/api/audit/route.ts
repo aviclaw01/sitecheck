@@ -582,7 +582,7 @@ export async function POST(request: NextRequest) {
     // ── COMPETITOR BENCHMARK ──────────────────────────────────────────────────
     // Industry benchmark based on real audit data from 28 German auto dealer websites
     // Avg: 71, Median: 77, Range: 14–87 (March 2026)
-    const industryAvg = 68 + Math.floor(Math.random() * 8); // 68–75 range reflects real data
+    const industryAvg = 71; // Fixed: based on our audit of 28 German auto dealer sites (March 2026)
     const yourRank =
       overallScore >= industryAvg + 15
         ? "Top 20% in your market"
