@@ -197,6 +197,7 @@ function ResultsContent() {
   const [expandedScore, setExpandedScore] = useState<string | null>(null);
   const [lang, setLang] = useState<"en" | "de">("en");
   const [showAllMissing, setShowAllMissing] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const urlParam = searchParams.get("url") || "";
   const dataParam = searchParams.get("data");
@@ -387,23 +388,39 @@ function ResultsContent() {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
         {/* Header */}
         <div className="mb-8 animate-fade-in-up">
-          <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
-            <span>{t.title}</span>
-            <span>·</span>
-            <a
-              href={data.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-teal-400 truncate max-w-xs hover:underline"
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
+                <span>{t.title}</span>
+                <span>·</span>
+                <a
+                  href={data.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-teal-400 truncate max-w-xs hover:underline"
+                >
+                  {displayUrl}
+                </a>
+              </div>
+              <p className="text-slate-500 text-sm">
+                {data.loadable
+                  ? `${t.loadedIn} ${(data.loadTimeMs / 1000).toFixed(1)}s · ${new Date(data.timestamp).toLocaleString()}`
+                  : `${t.notReachable} · ${new Date(data.timestamp).toLocaleString()}`}
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                const shareUrl = `${window.location.origin}/results?url=${encodeURIComponent(data.url)}`;
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                });
+              }}
+              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-teal-400 hover:border-teal-500/40 transition-all text-xs font-medium"
             >
-              {displayUrl}
-            </a>
+              {copied ? "✓ Copied!" : "🔗 Share report"}
+            </button>
           </div>
-          <p className="text-slate-500 text-sm">
-            {data.loadable
-              ? `${t.loadedIn} ${(data.loadTimeMs / 1000).toFixed(1)}s · ${new Date(data.timestamp).toLocaleString()}`
-              : `${t.notReachable} · ${new Date(data.timestamp).toLocaleString()}`}
-          </p>
         </div>
 
         {/* Overall Score + Competitor Benchmark */}
@@ -640,6 +657,30 @@ function ResultsContent() {
                   </form>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Check Competitor CTA */}
+        <div className="mt-6 animate-fade-in-up-delay-3">
+          <div className="rounded-2xl border border-slate-700/50 bg-slate-900/40 p-5 glass">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="flex-1 text-center sm:text-left">
+                <p className="text-sm font-semibold text-slate-200 mb-1">
+                  🔍 {lang === "de" ? "Wie schneidet Ihr Mitbewerber ab?" : "How does your competitor score?"}
+                </p>
+                <p className="text-slate-500 text-xs">
+                  {lang === "de"
+                    ? "Vergleichen Sie Ihre Website mit dem stärksten Mitbewerber."
+                    : "Run a free check on any competing dealership to see how you compare."}
+                </p>
+              </div>
+              <button
+                onClick={() => router.push("/")}
+                className="shrink-0 px-5 py-2.5 rounded-xl border border-slate-600 text-slate-300 hover:text-teal-400 hover:border-teal-500/50 transition-all text-sm font-medium"
+              >
+                {lang === "de" ? "Mitbewerber prüfen →" : "Check a Competitor →"}
+              </button>
             </div>
           </div>
         </div>
