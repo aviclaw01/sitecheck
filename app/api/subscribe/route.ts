@@ -25,6 +25,9 @@ async function sendEmails(lead: Lead): Promise<void> {
 
   const fromSitecheck = "SiteCheck <sitecheck@nexprove.com>";
   const fromNexprove = "Nexprove <hello@nexprove.com>";
+  // Resend blocks same-domain: sitecheck@nexprove.com → hello@nexprove.com = suppressed
+  // Set NOTIFY_EMAIL env var to a non-nexprove.com address to receive lead alerts
+  const notifyEmail = process.env.NOTIFY_EMAIL || "hello@nexprove.com";
 
   try {
     const { Resend } = await import("resend");
@@ -33,7 +36,7 @@ async function sendEmails(lead: Lead): Promise<void> {
     // Notify Nexprove team
     await resend.emails.send({
       from: fromSitecheck,
-      to: ["hello@nexprove.com"],
+      to: [notifyEmail],
       subject: `🔔 New Lead: ${lead.email} — Grade ${lead.grade} (${lead.score}/100)`,
       html: `
         <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px;">
