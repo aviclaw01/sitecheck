@@ -50,7 +50,7 @@ async function sendEmails(lead: Lead): Promise<void> {
             <tr><td style="padding:6px 0;color:#64748b;">IP</td><td>${lead.ip || "—"}</td></tr>
           </table>
           <div style="margin-top:20px;">
-            <a href="https://sitecheck-ten.vercel.app/results?url=${encodeURIComponent(lead.url)}"
+            <a href="https://sitecheck.nexprove.com/results?url=${encodeURIComponent(lead.url)}"
                style="display:inline-block;background:#14b8a6;color:white;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">
               View their SiteCheck report →
             </a>
@@ -87,9 +87,9 @@ async function sendEmails(lead: Lead): Promise<void> {
 
           <div style="background:#f8fafc;border-radius:10px;padding:18px 20px;border-left:4px solid #14b8a6;margin-bottom:28px;">
             <p style="margin:0;font-size:13px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Your Report</p>
-            <a href="https://sitecheck-ten.vercel.app/results?url=${encodeURIComponent(lead.url)}"
+            <a href="https://sitecheck.nexprove.com/results?url=${encodeURIComponent(lead.url)}"
                style="color:#14b8a6;font-size:14px;font-weight:600;text-decoration:none;">
-              View full audit → sitecheck-ten.vercel.app
+              View full audit → sitecheck.nexprove.com
             </a>
           </div>
 
