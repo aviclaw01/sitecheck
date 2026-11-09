@@ -9,5 +9,6 @@
     "BANNER": "We're having some deployment issues while we move off our free hosting plan — audits are paused.",
     "APP_PATHS": "/results"
   },
+  "routes": [{ "pattern": "sitecheck.nexprove.com", "custom_domain": true }],
   "workers_dev": true
 }
